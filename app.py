@@ -22,7 +22,7 @@ def add_text():
 
     # พยายามโหลดฟอนต์ภาษาไทย ถ้าไม่มีใช้ default
     try:
-        font_path = "THSarabunNew.ttf"  # วางไฟล์ฟอนต์นี้ไว้ในโฟลเดอร์เดียวกัน
+        font_path = "NotoSansThai.ttf"  # วางไฟล์ฟอนต์นี้ไว้ในโฟลเดอร์เดียวกัน
         font = ImageFont.truetype(font_path, 48)
     except Exception as e:
         font = ImageFont.load_default()
