@@ -14,7 +14,7 @@ def add_text():
     image_data = file.read()
     img = Image.open(io.BytesIO(image_data)).convert("RGBA")
     draw = ImageDraw.Draw(img)
-    font_path = os.path.join(os.path.dirname(__file__), "NotoSansThai.ttf")
+    font_path = os.path.join(os.path.dirname(__file__), "Sarabun-Regular.ttf")
 
     # ======= ปรับตำแหน่งกับขนาดฟอนต์ตามค่าที่ส่ง =======
     font_size = int(request.form.get('font_size', 48))          # ค่า default = 48
