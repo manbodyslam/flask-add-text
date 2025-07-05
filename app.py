@@ -14,16 +14,18 @@ def add_text():
     image_data = file.read()
     img = Image.open(io.BytesIO(image_data)).convert("RGBA")
     draw = ImageDraw.Draw(img)
-    font_path = os.path.join(os.path.dirname(__file__), "Sarabun-Regular.ttf")
 
-    # ======= ปรับตำแหน่งกับขนาดฟอนต์ตามค่าที่ส่ง =======
-    font_size = int(request.form.get('font_size', 48))          # ค่า default = 48
-    bottom_margin = int(request.form.get('bottom_margin', 150)) # ค่า default = 150
+    # ใช้ Prompt-Regular.ttf เพื่อรองรับภาษาไทย+วรรณยุกต์ไม่ลอย
+    font_path = os.path.join(os.path.dirname(__file__), "Prompt-Regular.ttf")
+    font_size = int(request.form.get('font_size', 48))
+    bottom_margin = int(request.form.get('bottom_margin', 150))
 
     try:
-        font = ImageFont.truetype(font_path, font_size)
+        # ถ้าติดตั้ง libraqm ใน environment แล้ว จะ render สระ/วรรณยุกต์ได้ดีที่สุด
+        font = ImageFont.truetype(font_path, font_size, layout_engine=ImageFont.LAYOUT_RAQM)
     except Exception as e:
-        font = ImageFont.load_default()
+        # ถ้าไม่รองรับ layout_engine ก็ fallback เป็นปกติ
+        font = ImageFont.truetype(font_path, font_size)
 
     bbox = draw.textbbox((0, 0), text, font=font)
     text_w = bbox[2] - bbox[0]
