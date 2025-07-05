@@ -1,0 +1,8 @@
+# nixpacks.toml
+
+[phases.setup]
+# For Debian-based images, specify apt packages
+aptPkgs = ["libraqm-dev"]
+
+[start]
+cmd = "gunicorn app:app"
