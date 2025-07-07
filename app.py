@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from flask import Flask, request, jsonify
 from PIL import Image, ImageDraw, ImageFont
 import io, base64, os
@@ -15,16 +17,19 @@ def add_text():
     img = Image.open(io.BytesIO(image_data)).convert("RGBA")
     draw = ImageDraw.Draw(img)
 
-    font_path = os.path.join(os.path.dirname(__file__), "NotoSansThai.ttf")  # หรือ NotoSansThai.ttf
+    # ฟอนต์ไทยที่รองรับวรรณยุกต์ (ควรมีในโฟลเดอร์เดียวกัน)
+    font_path = os.path.join(os.path.dirname(__file__), "NotoSansThai.ttf")
     font_size = int(request.form.get('font_size', 48))
     bottom_margin = int(request.form.get('bottom_margin', 150))
+    padding = 20
 
     try:
-        # ❌ ไม่มี layout_engine เพื่อหลีกเลี่ยง error
-        font = ImageFont.truetype(font_path, font_size)
+        # ใช้ layout_engine=RAQM เพื่อแสดงวรรณยุกต์ได้ถูกต้อง
+        font = ImageFont.truetype(font_path, font_size, layout_engine=ImageFont.LAYOUT_RAQM)
     except Exception as e:
         return jsonify({'error': f'Font loading failed: {str(e)}'}), 500
 
+    # คำนวณขนาดข้อความ
     bbox = draw.textbbox((0, 0), text, font=font)
     text_w = bbox[2] - bbox[0]
     text_h = bbox[3] - bbox[1]
@@ -32,10 +37,17 @@ def add_text():
     x = (img.width - text_w) // 2
     y = img.height - text_h - bottom_margin
 
-    padding = 10
-    draw.rectangle([x - padding, y - padding, x + text_w + padding, y + text_h + padding], fill="black")
+    # วาดกล่องพื้นหลังดำตามขนาดจริงของข้อความ
+    draw.rectangle(
+        [x + bbox[0] - padding, y + bbox[1] - padding,
+         x + bbox[2] + padding, y + bbox[3] + padding],
+        fill="black"
+    )
+
+    # วางข้อความสีขาวตรงกลาง
     draw.text((x, y), text, font=font, fill="white")
 
+    # แปลงกลับเป็น base64
     buf = io.BytesIO()
     img.save(buf, format='PNG')
     result_img = base64.b64encode(buf.getvalue()).decode()
