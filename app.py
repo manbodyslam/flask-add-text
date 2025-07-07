@@ -15,7 +15,7 @@ def add_text():
     img = Image.open(io.BytesIO(image_data)).convert("RGBA")
     draw = ImageDraw.Draw(img)
 
-    font_path = os.path.join(os.path.dirname(__file__), "Prompt-Regular.ttf")  # หรือ NotoSansThai.ttf
+    font_path = os.path.join(os.path.dirname(__file__), "NotoSansThai.ttf")  # หรือ NotoSansThai.ttf
     font_size = int(request.form.get('font_size', 48))
     bottom_margin = int(request.form.get('bottom_margin', 150))
 
