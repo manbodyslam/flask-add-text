@@ -14,18 +14,22 @@ def add_text():
     file = request.files['image']
     text = request.form['text']
     image_data = file.read()
-    img = Image.open(io.BytesIO(image_data)).convert("RGBA")
+
+    try:
+        img = Image.open(io.BytesIO(image_data)).convert("RGBA")
+    except Exception as e:
+        return jsonify({'error': f'Cannot open image: {str(e)}'}), 400
+
     draw = ImageDraw.Draw(img)
 
-    # ฟอนต์ไทยที่รองรับวรรณยุกต์ (ควรมีในโฟลเดอร์เดียวกัน)
+    # เปลี่ยนตรงนี้เป็นฟอนต์ที่คุณใช้
     font_path = os.path.join(os.path.dirname(__file__), "NotoSansThai.ttf")
     font_size = int(request.form.get('font_size', 48))
     bottom_margin = int(request.form.get('bottom_margin', 150))
     padding = 20
 
     try:
-        # ใช้ layout_engine=RAQM เพื่อแสดงวรรณยุกต์ได้ถูกต้อง
-        font = ImageFont.truetype(font_path, font_size, layout_engine=ImageFont.LAYOUT_RAQM)
+        font = ImageFont.truetype(font_path, font_size)  # ไม่ต้องใช้ LAYOUT_RAQM
     except Exception as e:
         return jsonify({'error': f'Font loading failed: {str(e)}'}), 500
 
@@ -37,14 +41,14 @@ def add_text():
     x = (img.width - text_w) // 2
     y = img.height - text_h - bottom_margin
 
-    # วาดกล่องพื้นหลังดำตามขนาดจริงของข้อความ
+    # วาดกล่องดำหลังข้อความ
     draw.rectangle(
         [x + bbox[0] - padding, y + bbox[1] - padding,
          x + bbox[2] + padding, y + bbox[3] + padding],
         fill="black"
     )
 
-    # วางข้อความสีขาวตรงกลาง
+    # วางข้อความสีขาว
     draw.text((x, y), text, font=font, fill="white")
 
     # แปลงกลับเป็น base64
